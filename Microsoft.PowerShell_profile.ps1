@@ -1,47 +1,32 @@
+
 Import-Module PSReadLine
 
-# change cursor for vi mode
-$OnViModeChange = [scriptblock]{
-    if ($args[0] -eq 'Command')
-    {
-        # command mode - block cursor
-        Write-Host -NoNewline "`e[1 q"
-    } else
-    {
-        # insert mode - blinking cursor
-        Write-Host -NoNewline "`e[5 q"
-    }
+function Import-VsDevShell {
+  $vsPath = "F:\Program Files/Microsoft Visual Studio/2022/Community/Common7/Tools/Microsoft.VisualStudio.DevShell.dll"
+
+  if (Test-Path $vsPath) {
+    Import-Module $vsPath
+    Enter-VsDevShell -VsInstallPath "F:/Program Files/Microsoft Visual Studio/2022/Community" -SkipAutomaticLocation -Arch amd64
+    Write-Host "Loaded MSVC dev shell"
+  }
 }
 
-# Add Vi Mode
-Set-PSReadLineOption -EditMode Vi
-Set-PSReadLineOption -ViModeIndicator Script -ViModeChangeHandler $OnViModeChange
-
-Set-PSReadLineOption -HistorySearchCursorMovesToEnd
-
-# keymaps
-Set-PSReadLineKeyHandler -Key Ctrl+u -Function AcceptSuggestion
-Set-PSReadLineKeyHandler -Key Ctrl+c -ViMode Insert -Function ViCommandMode
-
+Import-VsDevShell
 
 # ALias
 Set-Alias .. cd..
-function ls
-{ Get-ChildItem | out-host -paging 
-}
-function la
-{ Get-ChildItem -Force @args | out-host -paging 
-}
+Set-Alias lz lazygit
 Set-Alias vi nvim
-# Set-Alias vi neovide
+
 
 function which($name)
 { get-command $name | Format-Table Path, Name 
 }
+
 function gst
 { git status 
 }
-Set-Alias lg lazygit
+
 
 function tig
 {
@@ -50,20 +35,24 @@ function tig
 
 function l
 {
-    eza -lah --git $argv
+    eza -lah --git-repos-no-status --git $argv
 }
-
-function lsstart
-{
-    live-server --port 1412
-}
-
-Set-Alias bash 'C:\Program Files\Git\bin\gbash.exe'
 
 function eg
 {
     vi 'C:\Users\Dobin\.gitconfig'
 }
 
-$env:_ZO_ECHO = '1'
-Invoke-Expression (& { ( zoxide init powershell | Out-String) })
+function y
+{
+    $tmp = [System.IO.Path]::GetTempFileName() 
+    yazi $args --cwd-file="$tmp"
+    $cwd = Get-Content -Path $tmp
+    if (-not [String]::IsNullOrEmpty($cwd) -and $cwd -ne $PWD.Path)
+    {
+        Set-Location -LiteralPath $cwd
+    }
+    Remove-Item -Path $tmp
+}
+
+# oh-my-posh init pwsh | Invoke-Expression
