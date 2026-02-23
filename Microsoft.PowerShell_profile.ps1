@@ -1,4 +1,3 @@
-
 Import-Module PSReadLine
 
 function Import-VsDevShell {
@@ -18,15 +17,18 @@ Set-Alias .. cd..
 Set-Alias lz lazygit
 Set-Alias vi nvim
 
+function jbm
+{
+    jj b m main -t `@-
+}
 
 function which($name)
-{ get-command $name | Format-Table Path, Name 
+{ get-command $name | Format-Table Path, Name
 }
 
 function gst
-{ git status 
+{ git status
 }
-
 
 function tig
 {
@@ -43,9 +45,11 @@ function eg
     vi 'C:\Users\Dobin\.gitconfig'
 }
 
+function e { iex "$env:EDITOR $args" }
+
 function y
 {
-    $tmp = [System.IO.Path]::GetTempFileName() 
+    $tmp = [System.IO.Path]::GetTempFileName()
     yazi $args --cwd-file="$tmp"
     $cwd = Get-Content -Path $tmp
     if (-not [String]::IsNullOrEmpty($cwd) -and $cwd -ne $PWD.Path)
@@ -56,3 +60,11 @@ function y
 }
 
 # oh-my-posh init pwsh | Invoke-Expression
+
+Set-PSReadLineKeyHandler -Chord Tab -Function MenuComplete
+
+$env:COMPLETE = "powershell"
+jj | Out-String | Invoke-Expression
+Remove-Item Env:\COMPLETE
+
+Invoke-Expression (& { (zoxide init powershell --cmd cd | Out-String)})
