@@ -22,6 +22,16 @@ function jbm
     jj b m main -t `@-
 }
 
+function jgp
+{
+    jj git push
+}
+
+function jgf
+{
+    jj git fetch
+}
+
 function which($name)
 { get-command $name | Format-Table Path, Name
 }
@@ -66,5 +76,7 @@ Set-PSReadLineKeyHandler -Chord Tab -Function MenuComplete
 $env:COMPLETE = "powershell"
 jj | Out-String | Invoke-Expression
 Remove-Item Env:\COMPLETE
+
+Invoke-Expression (&starship init powershell)
 
 Invoke-Expression (& { (zoxide init powershell --cmd cd | Out-String)})
