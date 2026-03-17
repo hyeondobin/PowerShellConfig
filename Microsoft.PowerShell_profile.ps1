@@ -59,7 +59,7 @@ function e { iex "$env:EDITOR $args" }
 
 function qfw
 {
-  wsl -d arch -e bash -c "~/scripts/qmkFlashWSL.sh"
+  wsl -d arch -e fish -c "~/scripts/qmkFlashWSL.sh"
 }
 
 function y
